@@ -4,27 +4,59 @@
 Nginx是轻量级的高性能Web服务器，提供了诸如HTTP代理和反向代理、负载均衡、缓存等一系列重要特性。
 
 ## Nginx配置文件的整体结构
-![]()
+
+![](https://cdn.ltar.com/wp-content/uploads/2018/06/nginx_struct.png)
 
 从图中可以看出主要包含以下几大部分内容：
 
 ### 1.全局块
 
+该部分配置主要影响Nginx全局，通常包括下面几个部分：
+
+* 配置运行Nginx服务器用户（组） 
+* worker process数
+* Nginx进程PID存放路径
+* 错误日志的存放路径
+* 配置文件的引入
+
 ### 2.events块
+
+该部分配置主要影响Nginx服务器与用户的网络连接，主要包括：
+
+* 设置网络连接的序列化
+* 是否允许同时接收多个网络连接
+* 事件驱动模型的选择
+* 最大连接数的配置
 
 ### 3.http块
 
+* 定义MIMI-Type
+* 自定义服务日志
+* 允许sendfile方式传输文件
+* 连接超时时间
+* 单连接请求数上限
+
 ### 4.Server块
+
+* 配置网络监听
+* 基于名称的虚拟主机配置
+* 基于IP的虚拟主机配置
 
 ### 5.location块
 
+location配置
+
+* 请求根目录配置
+* 更改location的URI
+* 网站默认首页配置
+
 ## 一份配置清单例析
 
-![]()
+![](https://cdn.ltar.com/wp-content/uploads/2018/06/example.png)
 
 配置代码如下：
 
-```
+```nginx
 user  nobody  nobody;
 
 worker_processes  3;
@@ -42,9 +74,9 @@ http {
     include   mime.types;
     default_type  application/octet-stream;
 
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
+    log_format  main  &#039;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#039;
+                      &#039;$status $body_bytes_sent &quot;$http_referer&quot; &#039;
+                      &#039;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#039;;
 
     access_log  logs/access.log  main;
     sendfile  on;
@@ -112,13 +144,13 @@ Nginx服务器实现并发处理服务的关键，**指令格式**： worker_pro
 
 按照上文中的配置清单的实验，我们给worker_processes配置的数目是：3，启动Nginx服务器后，我们可以后台看一下主机上的Nginx进程情况：
 
-```
+```bash
 ps -aux | grep nginx
 ```
 
 很明显，理解 worker_processes 这个指令的含义就很容易了
 
-![]()
+![](https://cdn.ltar.com/wp-content/uploads/2018/06/grep_nginx.png)
 
 ### Nginx进程PID存放路径
 
@@ -177,7 +209,7 @@ Nginx进程是作为系统守护进程在运行，需要在某文件中保存当
 
 **指令格式**：
 
-```
+```nginx
 include mime.types;
 default_type mime-type;
 ```
@@ -186,6 +218,8 @@ default_type mime-type;
 * include指令将mime.types文件包含进来
 
 ```cat mime.types``` 来查看mime.types文件内容，我们发现其就是一个types结构，里面包含了各种浏览器能够识别的MIME类型以及对应类型的文件后缀名字，如下所示：
+
+![](https://cdn.ltar.com/wp-content/uploads/2018/06/mime_type.png)
 
 ### 自定义服务日志
 
@@ -198,7 +232,7 @@ default_type mime-type;
 
 **指令格式**:
 
-```
+```nginx
 sendfile on | off;
 sendfile_max_chunk size;
 ```
@@ -226,7 +260,7 @@ sendfile_max_chunk size;
 
 实际举例：
 
-```
+```nginx
 listen 192.168.31.177:8080;  # 监听具体IP和具体端口上的连接
 listen 192.168.31.177;       # 监听IP上所有端口上的连接
 listen 8080;                 # 监听具体端口上的所有IP的连接
@@ -239,7 +273,7 @@ listen 8080;                 # 监听具体端口上的所有IP的连接
 
 实际举例：
 
-```
+```nginx
 server_name ~^www\d+\.myserver\.com$;
 ```
 
@@ -268,7 +302,8 @@ uri前面的方括号中的内容是可选项，解释如下：
 * path：Nginx接收到请求以后查找资源的根目录路径
 
 当然，还可以通过alias指令来更改location接收到的URI请求路径，指令为：
-```
+
+```nginx
 alias path;   # path为修改后的根路径 
 ```
 
